@@ -27,7 +27,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let vector33 = new Vectors.Vector3();
 	let indexPos = 0;
 	//
-	for(let index = 0; index < modelsLength; index++){
+	for(let modelIndex = 0; index < modelsLength; index++){
 		model = models[index].model;
 		texture = models[index].texture;
 		skeleton = models[index].skeleton;
@@ -75,7 +75,6 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	//less garbage
 	let fx = 0.0;
 	let fy = 0.0;
-	let triangle;
 	let dist1 = 0.0;
 	let dist2 = 0.0;
 	let dist3 = 0.0;
@@ -88,42 +87,52 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let factor1 = 0.0;
 	let factor2 = 0.0;
 	let factor3 = 0.0;
+
+	let barCoords;
+	let triangle;
+	let fz;
+	let minZ;
+	let closestBarCoords;
 	//
 	let pixelIndex = 0;
 	for(let y = 0; y < height; y++){//no depth test for now
 		for(let x = 0; x < width; x++){
 			fx = (x / width) * 2 - 1;
 			fy = (y / height) * 2 - 1;
+			minZ = 1;
+			closestBarCoords = undefined;
+			triangle = undefined;
 			for(let index = 0; index < triangleLength; index++){
 				if(rectangles[index].isPointInside(fx, fy)){
-					triangle = triangles[index];
-					if(triangle.isPointInside(fx, fy)){
-						//barycentric triangle coordinates
-						determinant = (triangle.y2 - triangle.y3) * (triangle.x1 - triangle.x3) + (triangle.x3 - triangle.x2) * (triangle.y1 - triangle.y3);
-						factor1 = ((triangle.y2 - triangle.y3) * (fx - triangle.x3) + (triangle.x3 - triangle.x2) * (fy - triangle.y3)) / determinant;
-						factor2 = ((triangle.y3 - triangle.y1) * (fx - triangle.x3) + (triangle.x1 - triangle.x3) * (fy - triangle.y3)) / determinant;
-						factor3 = 1 - factor1 - factor2;
-						
-						//vertex 1
-						textureX = factor1 * triangle.u1;
-						textureY = factor1 * triangle.v1;
-						
-						//vertex 2
-						textureX += factor2 * triangle.u2;
-						textureY += factor2 * triangle.v2;
-						
-						//vertex 3
-						textureX += factor3 * triangle.u3;
-						textureY += factor3 * triangle.v3;
-						
-						textureIndex = 4 * (Math.round(textureX) + triangle.texture.width * Math.round(textureY));
-						triangleTextureData = triangle.texture.data;
-						pixels[pixelIndex] = triangleTextureData[textureIndex++];//red
-						pixels[pixelIndex + 1] = triangleTextureData[textureIndex++];//green
-						pixels[pixelIndex + 2] = triangleTextureData[textureIndex++];//blue
-						pixels[pixelIndex + 3] = triangleTextureData[textureIndex];//alpha
+					fz = triangles[index].getZ(fx, fy);
+					if(fz > -1 && fz < minZ){
+						barCoords = triangles[index].getBarCoords2(fx, fy);
+						if(barCoords !== null){
+							minZ = fz;
+							triangle = triangles[index];
+							closestBarCoords = barCoords;
+						}
 					}
 				}
+			}
+			if(triangle !== undefined){
+				textureX = closestBarCoords[0] * triangle.u1;
+				textureY = barCoords[0] * triangle.v1;
+						
+				//vertex 2
+				textureX += closestBarCoords[1] * triangle.u2;
+				textureY += closestBarCoords[1] * triangle.v2;
+						
+				//vertex 3
+				textureX += closestBarCoords[2] * triangle.u3;
+				textureY += closestBarCoords[2] * triangle.v3;
+						
+				textureIndex = 4 * (Math.round(textureX) + triangle.texture.width * Math.round(textureY));
+				triangleTextureData = triangle.texture.data;
+				pixels[pixelIndex] = triangleTextureData[textureIndex++];//red
+				pixels[pixelIndex + 1] = triangleTextureData[textureIndex++];//green
+				pixels[pixelIndex + 2] = triangleTextureData[textureIndex++];//blue
+				pixels[pixelIndex + 3] = triangleTextureData[textureIndex];//alpha
 			}
 			pixelIndex += 4;
 		}
