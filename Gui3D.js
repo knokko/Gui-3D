@@ -27,10 +27,10 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let vector33 = new Vectors.Vector3();
 	let indexPos = 0;
 	//
-	for(let modelIndex = 0; index < modelsLength; index++){
-		model = models[index].model;
-		texture = models[index].texture;
-		skeleton = models[index].skeleton;
+	for(let modelIndex = 0; modelIndex < modelsLength; modelIndex++){
+		model = models[modelIndex].model;
+		texture = models[modelIndex].texture;
+		skeleton = models[modelIndex].skeleton;
 		indices = model.indices;
 		positions = model.positions;
 		textureCoords = model.textureCoords;
@@ -43,6 +43,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 			vector31.y = positions[indexPos++];
 			vector31.z = positions[indexPos];
 			cameraMatrix.transform(vector31, vector4);
+			vector4.w = Math.abs(vector4.w);
 			vector31.x = vector4.x / vector4.w;
 			vector31.y = vector4.y / vector4.w;
 			vector31.z = vector4.z / vector4.w;
@@ -52,6 +53,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 			vector32.y = positions[indexPos++];
 			vector32.z = positions[indexPos];
 			cameraMatrix.transform(vector32, vector4);
+			vector4.w = Math.abs(vector4.w);
 			vector32.x = vector4.x / vector4.w;
 			vector32.y = vector4.y / vector4.w;
 			vector32.z = vector4.z / vector4.w;
@@ -61,6 +63,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 			vector33.y = positions[indexPos++];
 			vector33.z = positions[indexPos];
 			cameraMatrix.transform(vector33, vector4);
+			vector4.w = Math.abs(vector4.w);
 			vector33.x = vector4.x / vector4.w;
 			vector33.y = vector4.y / vector4.w;
 			vector33.z = vector4.z / vector4.w;
@@ -83,10 +86,6 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let triangleTextureData;
 	let textureX = 0.0;
 	let textureY = 0.0;
-	let determinant = 0.0;
-	let factor1 = 0.0;
-	let factor2 = 0.0;
-	let factor3 = 0.0;
 
 	let barCoords;
 	let triangle;
@@ -95,10 +94,10 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let closestBarCoords;
 	//
 	let pixelIndex = 0;
-	for(let y = 0; y < height; y++){//no depth test for now
+	for(let y = 0; y < height; y++){
 		for(let x = 0; x < width; x++){
 			fx = (x / width) * 2 - 1;
-			fy = (y / height) * 2 - 1;
+			fy = (y / height) * -2 + 1;
 			minZ = 1;
 			closestBarCoords = undefined;
 			triangle = undefined;
@@ -117,7 +116,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 			}
 			if(triangle !== undefined){
 				textureX = closestBarCoords[0] * triangle.u1;
-				textureY = barCoords[0] * triangle.v1;
+				textureY = closestBarCoords[0] * triangle.v1;
 						
 				//vertex 2
 				textureX += closestBarCoords[1] * triangle.u2;
@@ -143,11 +142,8 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 Gui.CanvasRenderer.prototype.renderModels = function(minX, minY, maxX, maxY, cameraMatrix, models){
 	const intMinX = Math.round(minX * this.width);
 	const intMinY = Math.round((1 - maxY) * this.height);
-	const intMaxX = Math.round(maxX * this.width);
-	const intMaxY = Math.round((1 - minY) * this.height);
-	const width = intMaxX - intMinX + 1;
-	const height = intMaxY - intMinY + 1;
-	//const imageData = this.context.createImageData(width, height);
+	const width = Math.round(maxX * this.width) - intMinX + 1;
+	const height = Math.round((1 - minY) * this.height) - intMinY + 1;
 	const imageData = this.context.getImageData(intMinX, intMinY, width, height);
 	renderModels(imageData.data, width, height, cameraMatrix, models);
 	this.context.putImageData(imageData, intMinX, intMinY);
