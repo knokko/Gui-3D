@@ -26,6 +26,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let vector32 = new Vectors.Vector3();
 	let vector33 = new Vectors.Vector3();
 	let indexPos = 0;
+	let rectangle;
 	//
 	for(let modelIndex = 0; modelIndex < modelsLength; modelIndex++){
 		model = models[modelIndex].model;
@@ -37,44 +38,54 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 		//const matrices = model.matrices;
 		indicesLength = indices.length;
 		for(let index = 0; index < indicesLength; index += 3){
+
 			//vector 1
 			indexPos = indices[index] * 3;
 			vector31.x = positions[indexPos++];
 			vector31.y = positions[indexPos++];
 			vector31.z = positions[indexPos];
 			cameraMatrix.transform(vector31, vector4);
-			vector4.w = Math.abs(vector4.w);
+			if(vector4.w < 0) vector4.w = -vector4.w;
 			vector31.x = vector4.x / vector4.w;
 			vector31.y = vector4.y / vector4.w;
 			vector31.z = vector4.z / vector4.w;
+
 			//vector 2
 			indexPos = indices[index + 1] * 3;
 			vector32.x = positions[indexPos++];
 			vector32.y = positions[indexPos++];
 			vector32.z = positions[indexPos];
 			cameraMatrix.transform(vector32, vector4);
-			vector4.w = Math.abs(vector4.w);
+			if(vector4.w < 0) vector4.w = -vector4.w;
 			vector32.x = vector4.x / vector4.w;
 			vector32.y = vector4.y / vector4.w;
 			vector32.z = vector4.z / vector4.w;
+
 			//vector 3
 			indexPos = indices[index + 2] * 3;
 			vector33.x = positions[indexPos++];
 			vector33.y = positions[indexPos++];
 			vector33.z = positions[indexPos];
 			cameraMatrix.transform(vector33, vector4);
-			vector4.w = Math.abs(vector4.w);
+			if(vector4.w < 0) vector4.w = -vector4.w;
 			vector33.x = vector4.x / vector4.w;
 			vector33.y = vector4.y / vector4.w;
 			vector33.z = vector4.z / vector4.w;
-			triangles[triangleIndex] = new Gui3D.Triangle(texture, skeleton, vector31, vector32, vector33, 
-				textureCoords[indices[index] * 2], textureCoords[indices[index] * 2 + 1],
-				textureCoords[indices[index + 1] * 2], textureCoords[indices[index + 1] * 2 + 1],
-				textureCoords[indices[index + 2] * 2], textureCoords[indices[index + 2] * 2 + 1]
-			);
-			rectangles[triangleIndex] = new Gui3D.Rectangle(triangles[triangleIndex++]);
+
+			//add triangle to list
+			rectangle = new Gui3D.Rectangle(vector31, vector32, vector33);
+			if(rectangle.isInScreen()){
+				triangles[triangleIndex] = new Gui3D.Triangle(texture, skeleton, vector31, vector32, vector33, 
+					textureCoords[indices[index] * 2], textureCoords[indices[index] * 2 + 1],
+					textureCoords[indices[index + 1] * 2], textureCoords[indices[index + 1] * 2 + 1],
+					textureCoords[indices[index + 2] * 2], textureCoords[indices[index + 2] * 2 + 1]
+				);
+				rectangles[triangleIndex++] = rectangle;
+			}
 		}
 	}
+	triangleLength = triangleIndex;
+
 	//less garbage
 	let fx = 0.0;
 	let fy = 0.0;
@@ -105,7 +116,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 				if(rectangles[index].isPointInside(fx, fy)){
 					fz = triangles[index].getZ(fx, fy);
 					if(fz > -1 && fz < minZ){
-						barCoords = triangles[index].getBarCoords2(fx, fy);
+						barCoords = triangles[index].getBarCoords(fx, fy);
 						if(barCoords !== null){
 							minZ = fz;
 							triangle = triangles[index];

@@ -1,37 +1,25 @@
-Gui3D.Rectangle = function(triangle){
-	this.minX = triangle.x1;
-	if(triangle.x2 < this.minX){
-		this.minX = triangle.x2;
-	}
-	if(triangle.x3 < this.minX){
-		this.minX = triangle.x3;
-	}
-		
-	this.minY = triangle.y1;
-	if(triangle.y2 < this.minY){
-		this.minY = triangle.y2;
-	}
-	if(triangle.y3 < this.minY){
-		this.minY = triangle.y3;
-	}
-		
-	this.maxX = triangle.x1;
-	if(triangle.x2 > this.maxX){
-		this.maxX = triangle.x2;
-	}
-	if(triangle.x3 > this.maxX){
-		this.maxX = triangle.x3;
-	}
-		
-	this.maxY = triangle.y1;
-	if(triangle.y2 > this.maxY){
-		this.maxY = triangle.y2;
-	}
-	if(triangle.y3 > this.maxY){
-		this.maxY = triangle.y3;
-	}
-};
+Gui3D.Rectangle = function(vec1, vec2, vec3){
+	this.minX = vec1.x;
+	if(vec2.x < this.minX) this.minX = vec2.x;
+	if(vec3.x < this.minX) this.minX = vec3.x;
+
+	this.minY = vec1.y;
+	if(vec2.y < this.minY) this.minY = vec2.y;
+	if(vec3.y < this.minY) this.minY = vec3.y;
+
+	this.maxX = vec1.x;
+	if(vec2.x > this.maxX) this.maxX = vec2.x;
+	if(vec3.x > this.maxX) this.maxX = vec3.x;
+
+	this.maxY = vec1.y;
+	if(vec2.y > this.maxY) this.maxY = vec2.y;
+	if(vec3.y > this.maxY) this.maxY = vec3.y;
+}
 
 Gui3D.Rectangle.prototype.isPointInside = function(x, y){
 	return x >= this.minX && x <= this.maxX && y >= this.minY && y <= this.maxY;
+};
+
+Gui3D.Rectangle.prototype.isInScreen = function(){
+	return this.minX <= 1 && this.maxX >= -1 && this.minY <= 1 && this.maxY >= -1;
 };
