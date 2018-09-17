@@ -1,7 +1,7 @@
 Gui3D.RawModel = function(expectedVertices, expectedTriangles){
-	this.positions = new Array(expectedVertices * 3);
-	this.textureCoords = new Array(expectedVertices * 2);
-	this.matrices = new Array(expectedVertices);
+	this.positions = new Int32Array(expectedVertices * 3);
+	this.textureCoords = new Uint16Array(expectedVertices * 2);
+	this.matrices = new Int8Array(expectedVertices);
 	this.index = 0;
 	this.indices = new Array(expectedTriangles * 3);
 	this.indiceIndex = 0;

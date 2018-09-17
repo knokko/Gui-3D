@@ -4,3 +4,5 @@ math/Rectangle.js
 model/Model.js
 model/RawModel.js
 model/Skeleton.js
+model/SkeletonPart.js
+model/Animations.js

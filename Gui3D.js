@@ -1,5 +1,9 @@
 const Gui3D = {};
 
+let totalTime1 = 0;
+let totalTime2 = 0;
+let totalTicks = 0;
+
 function renderModels(pixels, width, height, cameraMatrix, models){
 	if(pixels === undefined){
 		pixels = new Uint8ClampedArray(4 * width * height);
@@ -26,25 +30,29 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let vector32 = new Vectors.Vector3();
 	let vector33 = new Vectors.Vector3();
 	let indexPos = 0;
+	let index = 0;
+	let modelIndex = 0;
 	let rectangle;
 	//
-	for(let modelIndex = 0; modelIndex < modelsLength; modelIndex++){
+	let startTime = performance.now();
+	for(modelIndex = 0; modelIndex < modelsLength; modelIndex++){
 		model = models[modelIndex].model;
 		texture = models[modelIndex].texture;
 		skeleton = models[modelIndex].skeleton;
 		indices = model.indices;
 		positions = model.positions;
 		textureCoords = model.textureCoords;
-		//const matrices = model.matrices;
+		const matrices = model.matrices;
 		indicesLength = indices.length;
-		for(let index = 0; index < indicesLength; index += 3){
+		for(index = 0; index < indicesLength; index += 3){
 
 			//vector 1
 			indexPos = indices[index] * 3;
 			vector31.x = positions[indexPos++];
 			vector31.y = positions[indexPos++];
 			vector31.z = positions[indexPos];
-			cameraMatrix.transform(vector31, vector4);
+			skeleton.parts[matrices[indices[index]]].matrix.transform(vector31, vector4);
+			cameraMatrix.transform(vector4, vector4);
 			if(vector4.w < 0) vector4.w = -vector4.w;
 			vector31.x = vector4.x / vector4.w;
 			vector31.y = vector4.y / vector4.w;
@@ -55,7 +63,8 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 			vector32.x = positions[indexPos++];
 			vector32.y = positions[indexPos++];
 			vector32.z = positions[indexPos];
-			cameraMatrix.transform(vector32, vector4);
+			skeleton.parts[matrices[indices[index + 1]]].matrix.transform(vector32, vector4);
+			cameraMatrix.transform(vector4, vector4);
 			if(vector4.w < 0) vector4.w = -vector4.w;
 			vector32.x = vector4.x / vector4.w;
 			vector32.y = vector4.y / vector4.w;
@@ -66,7 +75,8 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 			vector33.x = positions[indexPos++];
 			vector33.y = positions[indexPos++];
 			vector33.z = positions[indexPos];
-			cameraMatrix.transform(vector33, vector4);
+			skeleton.parts[matrices[indices[index + 2]]].matrix.transform(vector33, vector4);
+			cameraMatrix.transform(vector4, vector4);
 			if(vector4.w < 0) vector4.w = -vector4.w;
 			vector33.x = vector4.x / vector4.w;
 			vector33.y = vector4.y / vector4.w;
@@ -85,6 +95,8 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 		}
 	}
 	triangleLength = triangleIndex;
+	totalTime1 += performance.now() - startTime;
+	startTime = performance.now();
 
 	//less garbage
 	let fx = 0.0;
@@ -94,25 +106,27 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let dist3 = 0.0;
 	let totalDist = 0.0;
 	let textureIndex = 0;
-	let triangleTextureData;
+	let triangleTextureData = null;
 	let textureX = 0.0;
 	let textureY = 0.0;
 
-	let barCoords;
-	let triangle;
-	let fz;
-	let minZ;
-	let closestBarCoords;
+	let barCoords = null;
+	let triangle = null;
+	let fz = 0.0;
+	let minZ = 0.0;
+	let closestBarCoords = null;
+	let x = 0;;
+	let y = 0;
 	//
 	let pixelIndex = 0;
-	for(let y = 0; y < height; y++){
-		for(let x = 0; x < width; x++){
+	for(y = 0; y < height; y++){
+		for(x = 0; x < width; x++){
 			fx = (x / width) * 2 - 1;
 			fy = (y / height) * -2 + 1;
 			minZ = 1;
 			closestBarCoords = undefined;
 			triangle = undefined;
-			for(let index = 0; index < triangleLength; index++){
+			for(index = 0; index < triangleLength; index++){
 				if(rectangles[index].isPointInside(fx, fy)){
 					fz = triangles[index].getZ(fx, fy);
 					if(fz > -1 && fz < minZ){
@@ -147,6 +161,8 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 			pixelIndex += 4;
 		}
 	}
+	totalTime2 += performance.now() - startTime;
+	totalTicks++;
 	return pixels;
 };
 
