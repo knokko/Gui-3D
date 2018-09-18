@@ -6,3 +6,4 @@ model/RawModel.js
 model/Skeleton.js
 model/SkeletonPart.js
 model/Animations.js
+model/ModelBuilder.js

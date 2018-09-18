@@ -10,6 +10,10 @@ Gui3D.SkeletonPart = function(parentIndex, x, y, z, pitch, yaw, roll, animation)
 	this.matrix = null;
 };
 
+Gui3D.SkeletonPart.prototype.clone = function(){
+	return new Gui3D.SkeletonPart(this.parentIndex, this.x, this.y, this.z, this.pitch, this.yaw, this.roll, this.animation.clone());
+};
+
 Gui3D.SkeletonPart.prototype.setState = function(state, skeleton){
 	this.matrix = Matrices.createTransformationMatrix(this.x + this.animation.getX(state), this.y + this.animation.getY(state), this.z + this.animation.getZ(state), this.pitch + this.animation.getPitch(state), this.yaw + this.animation.getYaw(state), this.roll + this.animation.getRoll(state));
 	if(this.parentIndex !== -1){

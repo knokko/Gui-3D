@@ -1,6 +1,5 @@
-Gui3D.Skeleton = function(capacity){
-	this.parts = new Array(capacity);
-	this.index = 0;
+Gui3D.Skeleton = function(parts){
+	this.parts = parts;
 };
 
 Gui3D.Skeleton.prototype.setState = function(state){
