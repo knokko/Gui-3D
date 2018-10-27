@@ -44,7 +44,7 @@ Gui3D.Triangle.prototype.getZ = function(x, y){
 	if(this.nz !== 0){
 		return (this.w - this.nx * x - this.ny * y) / this.nz;
 	}
-	return 2;//will prevent rendering from now
+	return 2;//will prevent rendering for now
 }
 
 Gui3D.Triangle.prototype.getBarCoords = function(fx, fy){

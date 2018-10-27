@@ -115,7 +115,7 @@ function renderModels(pixels, width, height, cameraMatrix, models){
 	let fz = 0.0;
 	let minZ = 0.0;
 	let closestBarCoords = null;
-	let x = 0;;
+	let x = 0;
 	let y = 0;
 	//
 	let pixelIndex = 0;
