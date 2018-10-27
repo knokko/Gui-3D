@@ -1,4 +1,5 @@
 Gui3D.js
+Camera.js
 math/Triangle.js
 math/Rectangle.js
 model/Model.js
