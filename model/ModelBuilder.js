@@ -61,7 +61,7 @@ Gui3D.ModelBuilder.prototype.createModel = function(){
 	const positions = new Int32Array(this.positions.length);
 	const textureCoords = new Uint16Array(this.textureCoords.length);
 	const matrices = new Int8Array(this.matrices.length);
-	const indices = new Int32Array(this.indices.length);
+	const indices = new Uint16Array(this.indices.length);
 	const parts = new Array(this.parts);
 	javaArrayCopy(this.positions, 0, positions, 0, positions.length);
 	javaArrayCopy(this.textureCoords, 0, textureCoords, 0, textureCoords.length);
