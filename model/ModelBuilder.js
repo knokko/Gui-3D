@@ -4,7 +4,7 @@ Gui3D.ModelBuilder = function(current){
 		this.textureCoords = [];
 		this.matrices = [];
 		this.indices = [];
-		this.parts = [];
+		this.parts = [new Gui3D.SkeletonPart(-1, 0, 0, 0, 0, 0, 0, new Gui3D.NoAnimation())];
 		this.texture = new Gui.Texture(32, 32);
 	}
 	else {
