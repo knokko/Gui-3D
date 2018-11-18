@@ -125,6 +125,24 @@ Gui3D.Camera.prototype.getZ = function(){
 	return this.z;
 };
 
+Gui3D.Camera.prototype.setPosition = function(x, y, z){
+	if (x !== this.x || y !== this.y || z !== this.z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.shouldUpdateMatrix = true;
+	}
+};
+
+Gui3D.Camera.prototype.increasePosition = function(dx, dy, dz){
+	if (dx || dy || dz){
+		this.x += dx;
+		this.y += dy;
+		this.z += dz;
+		this.shouldUpdateMatrix = true;
+	}
+};
+
 Gui3D.Camera.prototype.setPitch = function(pitch){
 	if (pitch !== this.pitch) {
 		this.pitch = pitch;
