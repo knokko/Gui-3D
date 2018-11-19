@@ -13,7 +13,7 @@ Gui3D.Camera = function(fov, nearPlane, farPlane, screenWidth, screenHeight, x, 
 	this.shouldUpdateMatrix = true;
 	this.matrix = null;
 	this.lookVector = null;
-	this.shouldUpdateLookVector = true;
+	this.shouldUpdateVectors = true;
 };
 
 Gui3D.Camera.prototype.setFOV = function(fov){
@@ -147,7 +147,7 @@ Gui3D.Camera.prototype.setPitch = function(pitch){
 	if (pitch !== this.pitch) {
 		this.pitch = pitch;
 		this.shouldUpdateMatrix = true;
-		this.shouldUpdateLookVector = true;
+		this.shouldUpdateVectors = true;
 	}
 };
 
@@ -155,7 +155,7 @@ Gui3D.Camera.prototype.increasePitch = function(amount){
 	if (amount) {
 		this.pitch += amount;
 		this.shouldUpdateMatrix = true;
-		this.shouldUpdateLookVector = true;
+		this.shouldUpdateVectors = true;
 	}
 };
 
@@ -167,7 +167,7 @@ Gui3D.Camera.prototype.setYaw = function(yaw){
 	if (yaw !== this.yaw) {
 		this.yaw = yaw;
 		this.shouldUpdateMatrix = true;
-		this.shouldUpdateLookVector = true;
+		this.shouldUpdateVectors = true;
 	}
 };
 
@@ -175,7 +175,7 @@ Gui3D.Camera.prototype.increaseYaw = function(amount){
 	if (amount) {
 		this.yaw += amount;
 		this.shouldUpdateMatrix = true;
-		this.shouldUpdateLookVector = true;
+		this.shouldUpdateVectors = true;
 	}
 };
 
@@ -187,7 +187,7 @@ Gui3D.Camera.prototype.setRoll = function(roll){
 	if (roll !== this.roll) {
 		this.roll = roll;
 		this.shouldUpdateMatrix = true;
-		this.shouldUpdateLookVector = true;
+		this.shouldUpdateVectors = true;
 	}
 };
 
@@ -195,7 +195,7 @@ Gui3D.Camera.prototype.increaseRoll = function(amount){
 	if (amount) {
 		this.roll += amount;
 		this.shouldUpdateMatrix = true;
-		this.shouldUpdateLookVector = true;
+		this.shouldUpdateVectors = true;
 	}
 };
 
@@ -215,15 +215,36 @@ Gui3D.Camera.prototype.createMatrix = function(){
 	return Matrices.createCameraMatrix(this.fov, this.nearPlane, this.farPlane, this.width, this.height, this.x, this.y, this.z, this.pitch, this.yaw, this.roll);
 };
 
-Gui3D.Camera.prototype.getLookVector = function(){
-	if (this.shouldUpdateLookVector) {
-		this.lookVector = this.createLookVector();
-		this.shouldUpdateLookVector = false;
+Gui3D.Camera.prototype.getForwardVector = function(){
+	if (this.shouldUpdateVectors) {
+		this.createVectors();
 	}
-	return this.lookVector;
+	return this.forwardVector;
 };
 
-Gui3D.Camera.prototype.createLookVector = function(){
-	// TODO implement roll
-	return new Vectors.Vector3(Math.sin(toRadians(this.yaw)) * Math.cos(toRadians(this.pitch)), Math.sin(toRadians(this.pitch)), -Math.cos(toRadians(this.yaw)) * Math.cos(toRadians(this.pitch)));
+Gui3D.Camera.prototype.getUpVector = function(){
+	if (this.shouldUpdateVectors) {
+		this.createVectors();
+	}
+	return this.upVector;
+};
+
+Gui3D.Camera.prototype.getRightVector = function(){
+	if (this.shouldUpdateVectors) {
+		this.createVectors();
+	}
+	return this.rightVector;
+};
+
+Gui3D.Camera.prototype.createVectors = function(){
+	this.shouldUpdateVectors = false;
+	const pitch = toRadians(this.pitch);
+	const yaw = toRadians(this.yaw);
+	const sinPitch = Math.sin(pitch);
+	const cosPitch = Math.cos(pitch);
+	const sinYaw = Math.sin(yaw);
+	const cosYaw = Math.cos(yaw);
+	this.forwardVector = new Vectors.Vector3(sinYaw * cosPitch, -sinPitch, -cosYaw * cosPitch);
+	this.upVector = new Vectors.Vector3(0, 1, 0);
+	this.rightVector = new Vectors.Vector3(cosYaw, 0, sinYaw);
 };
